@@ -19,15 +19,15 @@ Key Security Features
 
 ## How to Run
 
-Install dependencies:
+### Install dependencies:
 
 bash   pip install -r requirements.txt 
 
-Run the demo:
+### Run the demo:
 
 bash   python demo.py
 
-Run the interactive system:
+### Run the interactive system:
 
 bash   python main.py
 
