@@ -17,16 +17,7 @@ Key Security Features
 - Hashlib: SHA-256 for password/PIN hashing
 - SQLite: For database storage (simulated with dictionaries in prototype)
 
-Project Structure
-medical_records_project/
-├── main.py                           # Main program entry point
-├── medical_system.py                 # Core system implementation
-├── database.py                       # Database operations
-├── crypto_utils.py                   # Encryption/decryption utilities
-├── auth.py                          # Authentication functions
-├── demo.py                          # Demonstration scenarios
-└── requirements.txt                 # Python dependencies
-How to Run
+## How to Run
 
 Install dependencies:
 
@@ -39,41 +30,7 @@ bash   python demo.py
 Run the interactive system:
 
 bash   python main.py
-## System Architecture
-┌─────────────────────────────────────────┐
-│         Patient Portal Interface         │
-└──────────────┬──────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────┐
-│      Authentication Layer (auth.py)      │
-│  • SSN + PIN + Password verification    │
-│  • Identity verification for recovery   │
-└──────────────┬──────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────┐
-│   Medical System Core (medical_system.py)│
-│  • Patient registration                  │
-│  • Medical record management            │
-│  • Access control                       │
-└──────────────┬──────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────┐
-│  Encryption Layer (crypto_utils.py)     │
-│  • AES-256 encryption                   │
-│  • Random key generation                │
-│  • Secure key storage                   │
-└──────────────┬──────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────┐
-│      Database Layer (database.py)        │
-│  • Patient data storage                 │
-│  • Encrypted medical records            │
-│  • Access logs                          │
-└─────────────────────────────────────────┘
+
 ## Demo Scenarios
 The demo.py file demonstrates:
 
