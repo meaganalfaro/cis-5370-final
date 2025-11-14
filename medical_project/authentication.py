@@ -152,7 +152,6 @@ class PatientAuthenticator:
 
     # Save patients to file
     def save_patients(self):
-        """Save patients to file."""
         data = {
             'patients': self.patients,
             'patient_id_counter': self.patient_id_counter
