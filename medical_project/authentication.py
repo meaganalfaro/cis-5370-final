@@ -6,6 +6,7 @@
 import hashlib
 from datetime import datetime
 import random
+import json
 
 # This class will handle the authentication of patients
 class PatientAuthenticator:
@@ -13,9 +14,9 @@ class PatientAuthenticator:
     # This function will initialize the authenticator and store the patients
     # In real practice this would be stored in a database
     def __init__(self):
-        
         self.patients = {}
         self.patient_id_counter = 1
+        self.load_patients()
     
     def hash_credential(self, credential):
         
@@ -88,12 +89,12 @@ class PatientAuthenticator:
 
         for patient in self.patients.values():
             if patient['ssn_hash'] == hashed_ssn and patient['pin_hash'] == hashed_pin and patient['password_hash'] == hashed_password:
-                print(f"\n Authentication successful!")
-                print(f"\n\t Welcome, {patient['name']}!")
+                
                 return True, patient['patient_id'], f"Welcome, {patient['name']}!"
-            else:
-                print(f"Invalid Credentials!")
-                return False, None, "Invalid credentials"
+            
+                
+        print(f"Authentication failed!")
+        return False, None, "Invalid credentials"
     
     # Function incase patient forgets their pin 
     def reset_pin(self, ssn, email):
@@ -119,16 +120,19 @@ class PatientAuthenticator:
                 patient['pin_hash'] = hashed_new_pin
 
                 print(f"Pin successfully reseted")
-                print(f"New Pin: {patient['pin_hash']}")
+                print(f"New Pin: {new_pin}")
+
+                self.save_patients()
+
                 return True, new_pin, "Pin reset successful"
     
+        
         print(f"Invalid Credentials")
         return False, None, "Patient not found"
 
 
-    
+    # "Display all registered patients (For Demonstration purposes)
     def list_patients(self):
-        """Display all registered patients (for demo purposes)."""
         print(f"\n{'='*60}")
         print(f"REGISTERED PATIENTS")
         print(f"{'='*60}\n")
@@ -139,10 +143,34 @@ class PatientAuthenticator:
         
         for patient_id, patient in self.patients.items():
             print(f"Patient ID: {patient_id}")
-            print(f"  Name: {patient['name']}")
-            print(f"  Email: {patient['email']}")
-            print(f"  Registered: {patient['registered_at']}")
-            print(f"  SSN Hash: {patient['ssn_hash'][:30]}...")
-            print(f"  PIN Hash: {patient['pin_hash'][:30]}...")
+            print(f"Name: {patient['name']}")
+            print(f"Email: {patient['email']}")
+            print(f"Registered: {patient['registered_at']}")
+            print(f"SSN Hash: {patient['ssn_hash'][:30]}...")
+            print(f"PIN Hash: {patient['pin_hash'][:30]}...")
             print()
 
+    # Save patients to file
+    def save_patients(self):
+        """Save patients to file."""
+        data = {
+            'patients': self.patients,
+            'patient_id_counter': self.patient_id_counter
+        }
+        with open('patients_data.json', 'w') as f:
+            json.dump(data, f, indent=2)
+    
+    # Load patients from file
+    def load_patients(self):
+        try:
+            with open('patients_data.json', 'r') as f:
+                data = json.load(f)
+                self.patients = data['patients']
+                # Convert string keys back to integers
+                self.patients = {int(k): v for k, v in self.patients.items()}
+                self.patient_id_counter = data['patient_id_counter']
+            print(f"Loaded {len(self.patients)} patients from file")
+        except FileNotFoundError:
+            print("No existing patient data found, starting fresh")
+        except Exception as e:
+            print(f"Error loading patients: {e}")

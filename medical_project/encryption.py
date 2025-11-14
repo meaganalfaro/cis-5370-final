@@ -13,6 +13,7 @@ class MedicalFileEncryptor:
     def __init__(self):
         # This will store the keys, in real practice this would be stored in a detabase. 
         self.key_storage = {}
+        self.load_keys()
 
     # This function will encrypt the file 
     # Recieves the input file path, pateint id, and the record type
@@ -79,6 +80,8 @@ class MedicalFileEncryptor:
         print(f"\n{'='*40}")
         print(f"\nEncryption complete")
         print(f"\n{'='*40}")
+
+        self.save_keys()
 
         return self.key_storage[record_id]
     
@@ -201,3 +204,35 @@ class MedicalFileEncryptor:
 
         print(f"\n{'='*40}")
 
+    # Save encryption keys to file.
+    def save_keys(self):
+        
+        # Convert bytes to strings for JSON
+        data_to_save = {}
+        for record_id, record_info in self.key_storage.items():
+            data_to_save[record_id] = {
+                'record_id': record_info['record_id'],
+                'patient_id': record_info['patient_id'],
+                'record_type': record_info['record_type'],
+                'original_filename': record_info['original_filename'],
+                'encrypted_filename': record_info['encrypted_filename'],
+                'encryption_key': record_info['encryption_key'],
+                'created_at': record_info['created_at'],
+                'file_size': record_info['file_size']
+            }
+        
+        with open('encryption_keys.json', 'w') as f:
+            json.dump(data_to_save, f, indent=2)
+    
+    # Load encryption keys from file
+    def load_keys(self):
+        try:
+            with open('encryption_keys.json', 'r') as f:
+                data = json.load(f)
+                # Convert string keys back to integers
+                self.key_storage = {int(k): v for k, v in data.items()}
+            print(f"Loaded {len(self.key_storage)} encryption keys from file")
+        except FileNotFoundError:
+            print("No existing encryption keys found, starting fresh")
+        except Exception as e:
+            print(f"Error loading keys: {e}")

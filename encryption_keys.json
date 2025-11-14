@@ -1,0 +1,12 @@
+{
+  "1": {
+    "record_id": 1,
+    "patient_id": 1,
+    "record_type": "blood_test",
+    "original_filename": "blood_test_patient_1.txt",
+    "encrypted_filename": "encrypted_blood_test_patient_1.txt.enc",
+    "encryption_key": "mhIBp6ZTRCldChh-CI_4wVxaE7JX6Ne-M4KNhCXpUOc=",
+    "created_at": "2025-11-14 10:34:48",
+    "file_size": 202
+  }
+}
