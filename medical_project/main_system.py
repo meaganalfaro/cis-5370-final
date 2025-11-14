@@ -2,6 +2,7 @@ from encryption import MedicalFileEncryptor
 from authentication import PatientAuthenticator
 import os 
 
+
 class MedicalRecordSystem:
     # Initializing the system
     def __init__(self):
@@ -18,6 +19,9 @@ class MedicalRecordSystem:
         
         # Call the authenticator's register_patient function
         success, patient_id, pin, message = self.authenticator.register_patient(ssn, name, email, password)
+
+        # To save previous or any patients
+        self.authenticator.save_patients()
 
         # Returning result
         return success, patient_id, pin, message
@@ -125,96 +129,211 @@ class MedicalRecordSystem:
     
         return success, new_pin, message
 
+# Interactive menu functions
+def main_menu(system):
+    while True:
+        print("\n" + '='*60)
+        print("MEDICAL RECORD SYSTEM - MAIN MENU".center(60))
+        print("="*60)
+        print("\n[1] Doctor Portal")
+        print("[2] Patient Portal")
+        print("[3] Exit")
 
+        choice = input("\nEnter your choice (1-3): ").strip()
+
+        if choice == "1":
+            doctor_portal(system)
+        elif choice == "2":
+            patient_portal(system)
+        elif choice == "3":
+            print("\nThank you for using Medical Record System!")
+            exit(0)
+        else:
+            print("\n Invalid choice. Please try again.")
+
+# Doctor portal system
+def doctor_portal(system):
+    while True:
+        print("\n" + "="*60)
+        print("DOCTOR PORTAL".center(60))
+        print("="*60)
+        print("\n[1] Register New Patient")
+        print("[2] Create Medical Record (Encrypt File)")
+        print("[3] View All Patients")
+        print("[4] Back to Main Menu")
+
+        choice = input("\nEnter your choice (1-4): ").strip()
+
+        if choice == "1":
+            print("\nRegistering a New Patient!")
+            print("-"*60)
+
+            ssn = input("Enter last 4 digits of SSN: ").strip()
+            name = input("Enter full name: ").strip()
+            email = input("Enter email: ").strip()
+            password = input("Enter password: ").strip()
+
+            success, patient_id, pin, message = system.register_patient(ssn, name, email, password)
+
+            if success:
+                print(f"\n {message}")
+                print(f"\n IMPORTANT: Give patient this PIN on paper:")
+                print(f"\n\tPIN: {pin}")
+                input("\nPress Enter to continue...")
+        
+        elif choice == "2":
+            print("\nCreate Medical Record")
+            print("-" * 60)
+            
+            # Get patient ID
+            try:
+                patient_id = int(input("Enter patient ID: ").strip())
+            except ValueError:
+                print("\nInvalid patient ID")
+                input("\nPress Enter to continue...")
+                continue
+            
+            # Ask if they want to create a sample file or use existing
+            print("\n[1] Create sample blood test file")
+            print("[2] Use existing file")
+            file_choice = input("\nChoice (1-2): ").strip()
+            
+            if file_choice == "1":
+                # Create sample file
+                filename = f"blood_test_patient_{patient_id}.txt"
+                with open(filename, 'w') as f:
+                    f.write(f"""
+BLOOD TEST RESULTS
+==================
+Patient ID: {patient_id}
+Date: 2025-11-10
+
+Blood Type: O+
+Cholesterol: 180 mg/dL
+Glucose: 95 mg/dL
+Hemoglobin: 14.5 g/dL
+
+All values within normal range.
+                    """)
+                print(f"\nCreated sample file: {filename}")
+                file_path = filename
+                record_type = "blood_test"
+                
+            else:
+                # Use existing file
+                file_path = input("Enter file path: ").strip()
+                record_type = input("Enter record type (blood_test/prescription/xray): ").strip()
+            
+            # Create the record
+            success, message = system.create_medical_record(
+                patient_id, file_path, record_type
+            )
+            
+            if success:
+                print(f"\n{message}")
+            else:
+                print(f"\n{message}")
+            
+            input("\nPress Enter to continue...")
+
+        elif choice == "3":
+            system.authenticator.list_patients()
+            input("\nPress Enter to continue")
+        
+        elif choice == "4":
+            break
+        else: 
+            print("\nInvalid choice. Please try again.")
+
+# Patient portal
+def patient_portal(system):
+    while True:
+        print("\n" + "="*60)
+        print("PATIENT PORTAL".center(60))
+        print("="*60)
+        print("\n[1] Login")
+        print("[2] View My Medical Records")
+        print("[3] Forgot PIN")
+        print("[4] Logout")
+        print("[5] Back to Main Menu")
+
+        choice = input("\nEnter your choice (1-5): ").strip()
+
+        if choice == "1":
+            # Login section
+            print("\nPatient Login")
+            print("-"*60)
+
+            ssn = input("Enter last 4 digits of SSN: ").strip()
+            pin = input("Enter PIN: ").strip()
+            password = input("Enter password: ").strip()
+
+            success, message = system.login(ssn, pin, password)
+
+            if success:
+                print(f"\n{message}")
+            else: 
+                print(f"\n{message}")
+
+            input("\nPress Enter to continue...")
+
+        elif choice == "2":
+            print("\nMedical Records")
+            print("-"*60)
+
+            success, records, message = system.view_my_records()
+
+            if success and len(records) > 0:
+                print(f"\n{message}\n")
+
+                for i, record in enumerate(records, 1):
+                    print("="*60)
+                    print(f"Record {i}: {record['filename']} ({record['record_type']})")
+                    print("=" * 60)
+                    print(f"Created: {record['created_at']} ")
+                    print("\nContent:")
+                    print(record['content'])
+                    print()
+            
+            elif success and len(records) == 0:
+                print(f"\n{message}")
+            else:
+                print(f"\n{message}")
+
+            input("\nPress Enter to continue...")
+
+        elif choice == "3":
+            print("\nForgot PIN Recovery")
+            print("-"*60)
+
+            ssn = input("Enter last 4 digits of SSN: ").strip()
+            email = input("Enter email: ").strip()
+
+            success, new_pin, message = system.forgot_pin(ssn, email)
+
+            if success:
+                print(f"\n{message}")
+                print(f"\tNew PIN: {new_pin}")
+                print(f"\t(this would be sent to your email)")
+            else: 
+                print(f"\n{message}")
+            
+            input("\nPress Enter to continue...")
+
+        elif choice == "4":
+            logout_message = system.logout()
+            print(f"\n{logout_message}")
+            input("\nPress Enter to continue...")
+        
+        elif choice == "5":
+            break
+
+        else:
+            print("\nInvalid choice. Please try again.")
+            
 if __name__ == "__main__":
+    # Initialize the system
     system = MedicalRecordSystem()
     
-    # Test 1: Registration
-    print("\n🧪 TEST 1: Register Patient")
-    success, patient_id, pin, message = system.register_patient(
-        ssn="123-45-6789",
-        name="John Doe",
-        email="john@email.com",
-        password="SecurePass123"
-    )
-    print(f"✅ Patient ID: {patient_id}, PIN: {pin}")
-    
-    # Test 2: Create sample file
-    print("\n🧪 TEST 2: Create Sample File")
-    sample_file = "sample_blood_test.txt"
-    with open(sample_file, 'w') as f:
-        f.write("BLOOD TEST: O+, Cholesterol: 180")
-    print(f"✅ Created: {sample_file}")
-    
-    # Test 3: Doctor encrypts file
-    print("\n🧪 TEST 3: Doctor Encrypts File")
-    success, message = system.create_medical_record(
-        patient_id=patient_id,
-        file_path=sample_file,
-        record_type="blood_test"
-    )
-    print(f"✅ {message}")
-    
-    # Test 4: Patient tries to view WITHOUT logging in
-    print("\n🧪 TEST 4: Try to View Records (Not Logged In)")
-    success, records, message = system.view_my_records()
-    if not success:
-        print(f"✅ Correctly blocked: {message}")
-    
-    # Test 5: Patient logs in
-    print("\n🧪 TEST 5: Patient Logs In")
-    success, message = system.login(
-        ssn="123-45-6789",
-        pin=pin,
-        password="SecurePass123"
-    )
-    print(f"✅ {message}")
-    
-    # Test 6: Patient views records (NOW it works!)
-    print("\n🧪 TEST 6: View Records (Logged In)")
-    success, records, message = system.view_my_records()
-    
-    if success:
-        print(f"\n✅ {message}")
-        for record in records:
-            print(f"\n{'='*60}")
-            print(f"📄 {record['filename']} ({record['record_type']})")
-            print(f"{'='*60}")
-            print(record['content'])
-
-    # Test 7: Logout
-    print("\n🧪 TEST 7: Patient Logs Out")
-    logout_msg = system.logout()
-    print(f"✅ {logout_msg}")
-    
-    # Test 8: Forgot PIN
-    print("\n🧪 TEST 8: Patient Forgets PIN")
-    success, new_pin, message = system.forgot_pin(
-        ssn="123-45-6789",
-        email="john@email.com"
-    )
-    
-    if success:
-        print(f"\n✅ {message}")
-        print(f"   New PIN: {new_pin}")
-        print(f"   📧 Would be sent to email")
-        
-        # Test 9: Login with NEW PIN
-        print("\n🧪 TEST 9: Login with New PIN")
-        success, message = system.login(
-            ssn="123-45-6789",
-            pin=new_pin,  # ← Using NEW PIN!
-            password="SecurePass123"  # ← Same password
-        )
-        
-        if success:
-            print(f"\n✅ {message}")
-            
-            # Test 10: Can still view records!
-            print("\n🧪 TEST 10: View Records (With New PIN)")
-            success, records, message = system.view_my_records()
-            
-            if success and len(records) > 0:
-                print(f"\n✅ {message}")
-                print(f"\n🎉 SUCCESS! Can still access encrypted files!")
-                print(f"   This proves: PIN change ≠ Re-encryption needed!")
+    # Start the interactive menu
+    main_menu(system)
