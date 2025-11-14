@@ -106,6 +106,3 @@ This demonstrates that authentication credentials are completely separate from e
 * **Course**: CIS 5370
 * **Instructor**: Ruimin Sun, KFSCIC, FIU
 * **Semester**: Spring 2025
-```
-
----
