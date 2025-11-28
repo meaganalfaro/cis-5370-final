@@ -34,10 +34,19 @@ medical_project/
 ```bash
    pip install -r requirements.txt
 ```
+or (Depending on Python Version)
+```bash
+   pip3 install -r requirements.txt
+```
+
 
 2. **Run the interactive system:**
 ```bash
    python main_system.py
+```
+or (Depending on Python Version)
+```bash
+   python3 main_system.py
 ```
 
 ## System Features
