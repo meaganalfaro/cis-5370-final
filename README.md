@@ -33,9 +33,7 @@ medical_project/
 1. **Install dependencies:**
 ```bash
    pip install -r requirements.txt
-```
-or (Depending on Python Version)
-```bash
+   # or use this command depending on Python version
    pip3 install -r requirements.txt
 ```
 
@@ -43,11 +41,10 @@ or (Depending on Python Version)
 2. **Run the interactive system:**
 ```bash
    python main_system.py
-```
-or (Depending on Python Version)
-```bash
+   # or use this command depending on Python version
    python3 main_system.py
 ```
+
 
 ## System Features
 
